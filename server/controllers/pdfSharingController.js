@@ -65,7 +65,7 @@ exports.generatePublicLink = async (req, res) => {
 
     res.json({
       message: "Public link generated",
-      publicLink: `${"http://localhost:5173"}/shared/${
+      publicLink: `${"https://pdf-management-system.vercel.app/"}/shared/${
         pdf._id
       }?token=${publicToken}`,
     });
