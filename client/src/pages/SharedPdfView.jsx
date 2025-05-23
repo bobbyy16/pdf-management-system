@@ -34,7 +34,6 @@ const SharedPdfView = () => {
     } catch (error) {
       console.error("Error fetching shared PDF:", error);
       toast.error("Failed to access PDF. The link may be invalid or expired.");
-      navigate("/");
     } finally {
       setLoading(false);
     }
