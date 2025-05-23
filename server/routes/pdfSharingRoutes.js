@@ -18,7 +18,6 @@ router.post("/:id/share/public", auth, generatePublicLink);
 router.get("/:id/view", viewPublicPdf); // Public access (no auth required)
 router.get("/:id/external-access", auth, getExternalAccess); // Email access (auth required)
 
-// NEW: Get PDFs shared with the current user
 router.get("/shared-with-me", auth, getSharedWithMe);
 
 // Get all users for sharing dropdown
