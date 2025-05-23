@@ -37,10 +37,21 @@ const Dashboard = () => {
     try {
       setSharedLoading(true);
       const response = await api.get("/pdf-sharing/shared-with-me");
-      setSharedPdfs(response.data);
+      // console.log("Shared PDFs API Response:", response.data);
+
+      // Handle both possible response structures
+      if (response.data && response.data.pdfs) {
+        setSharedPdfs(response.data.pdfs);
+      } else if (Array.isArray(response.data)) {
+        setSharedPdfs(response.data);
+      } else {
+        console.error("Unexpected response structure:", response.data);
+        setSharedPdfs([]);
+      }
     } catch (error) {
       console.error("Error fetching shared PDFs:", error);
-      // Don't show error toast for shared PDFs as it might not be implemented yet
+      toast.error("Failed to load shared PDFs");
+      setSharedPdfs([]);
     } finally {
       setSharedLoading(false);
     }
@@ -69,6 +80,7 @@ const Dashboard = () => {
   // Filter PDFs based on search query
   const filteredPdfs = useMemo(() => {
     if (!searchQuery.trim()) return pdfs;
+
     return pdfs.filter((pdf) =>
       pdf.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
@@ -76,66 +88,74 @@ const Dashboard = () => {
 
   const filteredSharedPdfs = useMemo(() => {
     if (!searchQuery.trim()) return sharedPdfs;
-    return sharedPdfs.filter((pdf) =>
-      pdf.title.toLowerCase().includes(searchQuery.toLowerCase())
+
+    return sharedPdfs.filter(
+      (pdf) =>
+        pdf.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (pdf.owner?.name &&
+          pdf.owner.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (pdf.owner?.email &&
+          pdf.owner.email.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [sharedPdfs, searchQuery]);
 
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
   const renderSearchBar = () => (
-    <div className="mb-6">
+    <div className="relative mb-6">
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 text-gray-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
         <input
           type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
           placeholder={`Search ${
             activeTab === "my-pdfs" ? "your PDFs" : "shared PDFs"
           }...`}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
         {searchQuery && (
-          <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-            <button
-              onClick={() => setSearchQuery("")}
-              className="text-gray-400 hover:text-gray-600"
+          <button
+            onClick={clearSearch}
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
-          </div>
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         )}
       </div>
       {searchQuery && (
         <div className="mt-2 text-sm text-gray-600">
           {activeTab === "my-pdfs"
-            ? `${filteredPdfs.length} of ${pdfs.length} PDFs found`
-            : `${filteredSharedPdfs.length} of ${sharedPdfs.length} shared PDFs found`}
+            ? `Found ${filteredPdfs.length} of ${pdfs.length} PDFs`
+            : `Found ${filteredSharedPdfs.length} of ${sharedPdfs.length} shared PDFs`}
         </div>
       )}
     </div>
@@ -173,64 +193,42 @@ const Dashboard = () => {
         </div>
       ) : filteredPdfs.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-16 w-16 mx-auto text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+          <h3 className="mt-4 text-lg font-medium text-gray-900">
+            {searchQuery ? "No PDFs match your search" : "No PDFs found"}
+          </h3>
+          <p className="mt-2 text-gray-600">
+            {searchQuery
+              ? `Try a different search term or clear the search to see all PDFs`
+              : "Upload your first PDF to get started"}
+          </p>
           {searchQuery ? (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No PDFs found
-              </h3>
-              <p className="mt-2 text-gray-600">
-                No PDFs match your search for "{searchQuery}"
-              </p>
-              <button
-                onClick={() => setSearchQuery("")}
-                className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-              >
-                Clear Search
-              </button>
-            </>
+            <button
+              onClick={clearSearch}
+              className="mt-4 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            >
+              Clear Search
+            </button>
           ) : (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No PDFs found
-              </h3>
-              <p className="mt-2 text-gray-600">
-                Upload your first PDF to get started
-              </p>
-              <button
-                onClick={() => setIsUploadModalOpen(true)}
-                className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-              >
-                Upload PDF
-              </button>
-            </>
+            <button
+              onClick={() => setIsUploadModalOpen(true)}
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+            >
+              Upload PDF
+            </button>
           )}
         </div>
       ) : (
@@ -301,6 +299,26 @@ const Dashboard = () => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-semibold text-gray-800">Shared with Me</h2>
+        <button
+          onClick={fetchSharedPdfs}
+          className="flex items-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 mr-1"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Refresh
+        </button>
       </div>
 
       {renderSearchBar()}
@@ -311,58 +329,37 @@ const Dashboard = () => {
         </div>
       ) : filteredSharedPdfs.length === 0 ? (
         <div className="bg-white rounded-lg shadow-md p-8 text-center">
-          {searchQuery ? (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No shared PDFs found
-              </h3>
-              <p className="mt-2 text-gray-600">
-                No shared PDFs match your search for "{searchQuery}"
-              </p>
-              <button
-                onClick={() => setSearchQuery("")}
-                className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
-              >
-                Clear Search
-              </button>
-            </>
-          ) : (
-            <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-16 w-16 mx-auto text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-                />
-              </svg>
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No shared PDFs found
-              </h3>
-              <p className="mt-2 text-gray-600">
-                PDFs shared with you will appear here
-              </p>
-            </>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-16 w-16 mx-auto text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+            />
+          </svg>
+          <h3 className="mt-4 text-lg font-medium text-gray-900">
+            {searchQuery
+              ? "No shared PDFs match your search"
+              : "No shared PDFs found"}
+          </h3>
+          <p className="mt-2 text-gray-600">
+            {searchQuery
+              ? "Try a different search term or clear the search to see all shared PDFs"
+              : "PDFs shared with you will appear here"}
+          </p>
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="mt-4 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md"
+            >
+              Clear Search
+            </button>
           )}
         </div>
       ) : (
@@ -370,7 +367,7 @@ const Dashboard = () => {
           {filteredSharedPdfs.map((pdf) => (
             <div
               key={pdf._id}
-              className="bg-white rounded-lg shadow-md overflow-hidden"
+              className="bg-white rounded-lg shadow-md overflow-hidden border-l-4 border-green-500"
             >
               <div className="p-4 border-b">
                 <h3
@@ -379,18 +376,50 @@ const Dashboard = () => {
                 >
                   {pdf.title}
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  Shared by {pdf.owner?.name || pdf.owner?.email || "Unknown"}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  Shared on{" "}
-                  {new Date(pdf.sharedAt || pdf.createdAt).toLocaleDateString()}
-                </p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm text-gray-600 flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4 mr-1 text-gray-400"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    Shared by {pdf.owner?.name || pdf.owner?.email || "Unknown"}
+                  </p>
+                  <p className="text-xs text-gray-400 flex items-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-3 w-3 mr-1"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    Shared on{" "}
+                    {new Date(
+                      pdf.sharedAt || pdf.createdAt
+                    ).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
               <div className="p-4">
                 <Link
                   to={`/external/${pdf._id}`}
-                  className="flex justify-center items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md w-full"
+                  className="flex justify-center items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-md w-full transition-colors"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -416,43 +445,47 @@ const Dashboard = () => {
   );
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 mb-6 bg-white p-1 rounded-lg shadow-sm">
+          <button
+            onClick={() => setActiveTab("my-pdfs")}
+            className={`px-6 py-3 rounded-md font-medium transition-all ${
+              activeTab === "my-pdfs"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            My PDFs ({pdfs.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("shared-with-me")}
+            className={`px-6 py-3 rounded-md font-medium transition-all ${
+              activeTab === "shared-with-me"
+                ? "bg-blue-500 text-white shadow-md"
+                : "bg-transparent text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            Shared with Me ({sharedPdfs.length})
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div className="transition-all duration-300">
+          {activeTab === "my-pdfs" ? renderMyPdfs() : renderSharedPdfs()}
+        </div>
+
+        <UploadPdfModal
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+          onUploadSuccess={handleUploadSuccess}
+        />
       </div>
-
-      {/* Tab Navigation */}
-      <div className="flex space-x-1 mb-6">
-        <button
-          onClick={() => setActiveTab("my-pdfs")}
-          className={`px-4 py-2 rounded-md font-medium ${
-            activeTab === "my-pdfs"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          My PDFs ({pdfs.length})
-        </button>
-        <button
-          onClick={() => setActiveTab("shared-with-me")}
-          className={`px-4 py-2 rounded-md font-medium ${
-            activeTab === "shared-with-me"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-          }`}
-        >
-          Shared with Me ({sharedPdfs.length})
-        </button>
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === "my-pdfs" ? renderMyPdfs() : renderSharedPdfs()}
-
-      <UploadPdfModal
-        isOpen={isUploadModalOpen}
-        onClose={() => setIsUploadModalOpen(false)}
-        onUploadSuccess={handleUploadSuccess}
-      />
     </div>
   );
 };
