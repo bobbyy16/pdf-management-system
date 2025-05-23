@@ -30,7 +30,9 @@ PDF Drive is a full-stack web application for uploading, managing, sharing, and 
 
 ## 🛠️ Tech Stack
 
-### [Backend](https://github.com/bobbyy16/pdf-management-system/blob/main/server/backend-document.md)
+### Backend
+
+[Document](https://github.com/bobbyy16/pdf-management-system/blob/main/server/backend-document.md)
 
 - **Node.js** and **Express**: Server framework
 - **MongoDB**: Database with Mongoose ODM
@@ -38,7 +40,9 @@ PDF Drive is a full-stack web application for uploading, managing, sharing, and 
 - **JWT**: Authentication
 - **Multer**: File upload handling
 
-### [Frontend](https://github.com/bobbyy16/pdf-management-system/blob/main/client/frontend-document.md)
+### Frontend
+
+[Document](https://github.com/bobbyy16/pdf-management-system/blob/main/client/frontend-document.md)
 
 - **React**: UI library
 - **React Router**: Navigation
