@@ -70,7 +70,7 @@ exports.generatePublicLink = async (req, res) => {
     await pdf.save();
 
     const frontendUrl =
-      process.env.FRONTEND_URL || "https://pdf-management-system.vercel.app";
+      "https://pdf-management-system-git-main-abhishek-ks-projects.vercel.app/";
     const publicLink = `${frontendUrl}/shared/${pdf._id}?token=${publicToken}`;
 
     res.json({
