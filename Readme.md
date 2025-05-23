@@ -60,18 +60,21 @@ Before you begin, ensure you have:
 ### Backend Setup
 
 1. Clone the repository:
-   \`\`\`bash
+
+   ```bash
    git clone https://github.com/yourusername/pdf-management-system.git
    cd pdf-management-system/server
-   \`\`\`
+   ```
 
 2. Install dependencies:
-   \`\`\`bash
+
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Create a `.env` file in the backend directory with the following variables:
-   \`\`\`
+
+   ```
    PORT=5000
    MONGODB_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret
@@ -95,34 +98,37 @@ Before you begin, ensure you have:
    # Frontend URL (for generating sharing links)
 
    FRONTEND_URL=https://your-frontend-url.vercel.app
-   \`\`\`
+   ```
 
 4. Start the backend server:
-   \`\`\`bash
+   ```bash
    npm start
-   \`\`\`
+   ```
 
 ### Frontend Setup
 
 1. Navigate to the frontend directory:
-   \`\`\`bash
+
+   ```bash
    cd ../client
-   \`\`\`
+   ```
 
 2. Install dependencies:
-   \`\`\`bash
+
+   ```bash
    npm install
-   \`\`\`
+   ```
 
 3. Create a `.env` file in the frontend directory:
-   \`\`\`
+
+   ```
    VITE_API_URL=http://localhost:5000/api
-   \`\`\`
+   ```
 
 4. Start the frontend development server:
-   \`\`\`bash
+   ```bash
    npm run dev
-   \`\`\`
+   ```
 
 ## 🌐 Deployment
 

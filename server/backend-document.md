@@ -15,8 +15,7 @@ The system uses MongoDB with Mongoose as the ODM (Object Document Mapper). There
 
 ### User Model
 
-\`\`\`javascript
-const UserSchema = new mongoose.Schema(
+```javascript
 {
 userName: { type: String, required: true, unique: true },
 name: { type: String, required: true },
@@ -29,13 +28,12 @@ match: [/^\S+@\S+\.\S+$/, "Please use a valid email address"],
 password: { type: String, required: true },
 },
 { timestamps: true }
-);
-\`\`\`
+
+```
 
 ### PDF Model
 
-\`\`\`javascript
-const pdfSchema = new mongoose.Schema(
+```javascript
 {
 title: { type: String, required: true },
 fileId: { type: String, required: true },
@@ -62,13 +60,12 @@ required: true,
 
 },
 { timestamps: true }
-);
-\`\`\`
+
+```
 
 ### Comment Model
 
-\`\`\`javascript
-const commentSchema = new mongoose.Schema(
+```javascript
 {
 pdf: {
 type: mongoose.Schema.Types.ObjectId,
@@ -86,8 +83,8 @@ required: true,
 },
 },
 { timestamps: true }
-);
-\`\`\`
+
+```
 
 ### Database Relationships
 
@@ -120,55 +117,6 @@ The system uses JWT (JSON Web Tokens) for authentication:
 
 - **Access Token**: Short-lived token (15 minutes) for API access
 - **Refresh Token**: Long-lived token (7 days) for obtaining new access tokens
-
-### Token Generation
-
-\`\`\`javascript
-const generateAccessToken = (userId) => {
-return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
-expiresIn: "15m",
-});
-};
-
-const generateRefreshToken = (userId) => {
-return jwt.sign({ id: userId }, process.env.JWT_REFRESH_SECRET, {
-expiresIn: "7d",
-});
-};
-\`\`\`
-
-### Authentication Middleware
-
-\`\`\`javascript
-const auth = async (req, res, next) => {
-const authHeader = req.header("Authorization");
-if (!authHeader?.startsWith("Bearer ")) {
-return res.status(401).json({ message: "No token, authorization denied" });
-}
-
-const token = authHeader.split(" ")[1];
-try {
-const decoded = jwt.verify(token, process.env.JWT_SECRET);
-const user = await User.findById(decoded.id).select("-password");
-
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    req.user = user;
-    next();
-
-} catch (error) {
-let message = "Token is not valid";
-if (error.name === "TokenExpiredError") {
-message = "Access token expired";
-} else if (error.name === "JsonWebTokenError") {
-message = "Invalid token";
-}
-res.status(401).json({ message });
-}
-};
-\`\`\`
 
 ## Controllers
 
@@ -213,41 +161,41 @@ Manages comments on PDFs:
 
 ### Authentication Routes
 
-\`\`\`
+```
 POST /api/users/register - Register a new user
 POST /api/users/login - Login a user
 GET /api/users/all - Get all users (requires authentication)
-\`\`\`
+```
 
 ### PDF Management Routes
 
-\`\`\`
+```
 POST /api/pdfs/upload - Upload a new PDF (requires authentication)
 GET /api/pdfs/my-pdfs - Get all PDFs uploaded by the user (requires authentication)
 GET /api/pdfs/:id - Get details of a specific PDF (requires authentication)
 PUT /api/pdfs/:id - Update PDF title (requires authentication)
 DELETE /api/pdfs/:id - Delete a PDF (requires authentication)
-\`\`\`
+```
 
 ### PDF Sharing Routes
 
-\`\`\`
+```
 POST /api/pdf-sharing/:id/share/email - Share PDF with a specific user (requires authentication)
 POST /api/pdf-sharing/:id/share/public - Generate a public link (requires authentication)
 GET /api/pdf-sharing/:id/view - View PDF via public link (no authentication required)
 GET /api/pdf-sharing/:id/external-access - Access shared PDF (requires authentication)
 GET /api/pdf-sharing/shared-with-me - Get PDFs shared with the user (requires authentication)
 GET /api/pdf-sharing/users - Get all users for sharing (requires authentication)
-\`\`\`
+```
 
 ### Comment Routes
 
-\`\`\`
+```
 POST /api/pdf/:pdfId/comments - Create a new comment (requires authentication)
 GET /api/pdf/:pdfId/comments - Get all comments for a PDF
 PUT /api/pdf/comments/:commentId - Update a comment (requires authentication)
 DELETE /api/pdf/comments/:commentId - Delete a comment (requires authentication)
-\`\`\`
+```
 
 ## File Handling
 
@@ -255,25 +203,25 @@ DELETE /api/pdf/comments/:commentId - Delete a comment (requires authentication)
 
 The system uses Google Drive for PDF storage:
 
-\`\`\`javascript
+```javascript
 // Google Drive Authentication
 const auth = new google.auth.GoogleAuth({
-credentials: {
-type: process.env.GOOGLE_TYPE,
-project_id: process.env.GOOGLE_PROJECT_ID,
-private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
-private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-client_email: process.env.GOOGLE_CLIENT_EMAIL,
-client_id: process.env.GOOGLE_CLIENT_ID,
-auth_uri: process.env.GOOGLE_AUTH_URI,
-token_uri: process.env.GOOGLE_TOKEN_URI,
-auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_CERT_URL,
-client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL,
-universe_domain: process.env.GOOGLE_UNIVERSE_DOMAIN,
-},
-scopes: ["https://www.googleapis.com/auth/drive"],
+  credentials: {
+    type: process.env.GOOGLE_TYPE,
+    project_id: process.env.GOOGLE_PROJECT_ID,
+    private_key_id: process.env.GOOGLE_PRIVATE_KEY_ID,
+    private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    client_email: process.env.GOOGLE_CLIENT_EMAIL,
+    client_id: process.env.GOOGLE_CLIENT_ID,
+    auth_uri: process.env.GOOGLE_AUTH_URI,
+    token_uri: process.env.GOOGLE_TOKEN_URI,
+    auth_provider_x509_cert_url: process.env.GOOGLE_AUTH_PROVIDER_CERT_URL,
+    client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL,
+    universe_domain: process.env.GOOGLE_UNIVERSE_DOMAIN,
+  },
+  scopes: ["https://www.googleapis.com/auth/drive"],
 });
-\`\`\`
+```
 
 ### File Operations
 
@@ -281,37 +229,9 @@ scopes: ["https://www.googleapis.com/auth/drive"],
 - `deleteFromDrive`: Deletes a file from Google Drive
 - `renameInDrive`: Renames a file in Google Drive
 
-### File Upload Configuration
-
-Uses Multer for handling file uploads:
-
-\`\`\`javascript
-const storage = multer.diskStorage({
-destination: (req, file, cb) => cb(null, uploadDir),
-filename: (req, file, cb) => {
-const uniqueName = `${Date.now()}-${file.originalname}`;
-cb(null, uniqueName);
-},
-});
-
-const upload = multer({
-storage,
-limits: { fileSize: 10 _ 1024 _ 1024 }, // 10MB
-fileFilter: (req, file, cb) => {
-if (file.mimetype === "application/pdf") {
-cb(null, true);
-} else {
-cb(new Error("Only PDF files allowed"), false);
-}
-},
-});
-\`\`\`
-
 ## Environment Variables
 
 The backend requires the following environment variables:
-
-\`\`\`
 
 # Server Configuration
 
