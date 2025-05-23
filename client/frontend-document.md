@@ -8,8 +8,6 @@
 - [Pages](#pages)
 - [Authentication](#authentication)
 - [State Management](#state-management)
-- [API Integration](#api-integration)
-- [Routing](#routing)
 
 ## Overview
 

@@ -203,7 +203,7 @@ DELETE /api/pdf/comments/:commentId - Delete a comment (requires authentication)
 
 The system uses Google Drive for PDF storage:
 
-```javascript
+```bash
 // Google Drive Authentication
 const auth = new google.auth.GoogleAuth({
   credentials: {
@@ -235,20 +235,27 @@ The backend requires the following environment variables:
 
 # Server Configuration
 
+```bash
 PORT=5000
 NODE_ENV=production
+```
 
 # MongoDB Connection
 
+```bash
 MONGODB_URI=mongodb+srv://...
+```
 
 # JWT Authentication
 
+```bash
 JWT_SECRET=your_jwt_secret
 JWT_REFRESH_SECRET=your_refresh_secret
+```
 
 # Google Drive API
 
+```bash
 GOOGLE_TYPE=service_account
 GOOGLE_PROJECT_ID=your_project_id
 GOOGLE_PRIVATE_KEY_ID=your_private_key_id
@@ -261,7 +268,10 @@ GOOGLE_AUTH_PROVIDER_CERT_URL=https://www.googleapis.com/oauth2/v1/certs
 GOOGLE_CLIENT_CERT_URL=your_client_cert_url
 GOOGLE_UNIVERSE_DOMAIN=googleapis.com
 GOOGLE_DRIVE_FOLDER_ID=your_folder_id
+```
 
 # Frontend URL (for generating sharing links)
 
+```bash
 FRONTEND_URL=https://your-frontend-url.vercel.app
+```
