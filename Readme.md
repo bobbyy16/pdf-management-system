@@ -2,6 +2,8 @@
 
 PDF Drive is a full-stack web application for uploading, managing, sharing, and collaborating on PDF documents. It provides a secure platform for users to store their PDFs in the cloud, share them with specific users, and engage in discussions through comments.
 
+[Demo video](https://www.loom.com/share/e8b78a92d14b4022b7bec707fb96e353?sid=ae968da8-e389-4f72-9651-26a345b1b97c)
+
 ## 🌟 Features
 
 ### 📄 PDF Management
