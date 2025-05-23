@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create an axios instance with base URL
 const api = axios.create({
-  baseURL: "https://pdf-management-system-3iju.onrender.com/api",
+  baseURL: "http://localhost:5000/api",
   headers: {
     "Content-Type": "application/json",
   },
