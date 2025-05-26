@@ -14,7 +14,6 @@ export const AuthProvider = ({ children }) => {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (userData) {
       setUser(userData);
-      // Set the token for API calls
       api.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${userData.accessToken}`;
@@ -36,7 +35,6 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       return userData;
     } catch (error) {
-      // Don't show toast here - let the component handle it
       const message = error.response?.data?.message || "Login failed";
       throw new Error(message);
     }
@@ -56,7 +54,6 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
       return newUser;
     } catch (error) {
-      // Don't show toast here - let the component handle it
       const message = error.response?.data?.message || "Registration failed";
       throw new Error(message);
     }

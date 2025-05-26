@@ -20,7 +20,7 @@ const CommentSection = ({ pdfId }) => {
     try {
       setLoading(true);
       const response = await api.get(`/pdf/${pdfId}/comments`);
-      console.log("Fetched comments:", response.data.comments); // Debug log
+      // console.log("Fetched comments:", response.data.comments);
       setComments(response.data.comments);
     } catch (error) {
       console.error("Error fetching comments:", error);

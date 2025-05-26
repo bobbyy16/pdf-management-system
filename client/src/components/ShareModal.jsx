@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef } from "react";
 import api from "../utils/api";
 import toast from "react-hot-toast";
@@ -58,10 +56,8 @@ const ShareModal = ({ isOpen, onClose, pdfId }) => {
   const fetchUsers = async () => {
     try {
       setIsSearching(true);
-      // Fixed API endpoint - should match your backend route
       const response = await api.get("/pdf-sharing/users");
 
-      // Handle the response structure from your backend
       const userData = response.data.users || response.data || [];
       setUsers(userData);
       // console.log("Fetched users:", userData);
@@ -257,7 +253,7 @@ const ShareModal = ({ isOpen, onClose, pdfId }) => {
                   </button>
                 </div>
                 <p className="mt-1 text-xs text-gray-500">
-                  This link will work for anyone with the link. No expiration.
+                  This link will work for anyone with the link.
                 </p>
               </div>
             )}
