@@ -2,7 +2,7 @@ const Pdf = require("../models/pdfModels");
 const User = require("../models/userModels");
 const { v4: uuidv4 } = require("uuid");
 
-// Share with specific user via email (no link generation)
+// Share with specific user via email
 exports.shareWithEmail = async (req, res) => {
   try {
     const pdf = await Pdf.findById(req.params.id);
@@ -52,7 +52,7 @@ exports.shareWithEmail = async (req, res) => {
   }
 };
 
-// Generate public link (no expiration)
+// Generate public link
 exports.generatePublicLink = async (req, res) => {
   try {
     const pdf = await Pdf.findById(req.params.id);
@@ -66,7 +66,6 @@ exports.generatePublicLink = async (req, res) => {
 
     const publicToken = uuidv4();
     pdf.publicAccessToken = publicToken;
-    pdf.publicLinkExpiresAt = null;
     await pdf.save();
 
     const frontendUrl =
@@ -83,7 +82,7 @@ exports.generatePublicLink = async (req, res) => {
   }
 };
 
-// View PDF via public link (no auth required, no expiration check)
+// View PDF via public link
 exports.viewPublicPdf = async (req, res) => {
   try {
     const pdf = await Pdf.findById(req.params.id);
@@ -107,7 +106,7 @@ exports.viewPublicPdf = async (req, res) => {
   }
 };
 
-// Access PDF via email sharing (for logged-in users)
+// Access PDF via email sharing
 exports.getExternalAccess = async (req, res) => {
   try {
     const pdf = await Pdf.findById(req.params.id);
@@ -176,7 +175,7 @@ exports.getSharedWithMe = async (req, res) => {
   }
 };
 
-// Get all users (for the dropdown search)
+// Get all users
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({ _id: { $ne: req.user._id } })

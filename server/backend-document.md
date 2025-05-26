@@ -46,7 +46,6 @@ required: true,
 
     // Public sharing
     publicAccessToken: { type: String },
-    publicLinkExpiresAt: { type: Date },
 
     // Email sharing
     sharedWith: [

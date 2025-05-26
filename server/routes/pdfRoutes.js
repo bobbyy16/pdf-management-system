@@ -10,7 +10,7 @@ const {
   deletePdf,
 } = require("../controllers/pdfController");
 
-// PDF Management Routes (require authentication)
+// PDF Management Routes
 router.post("/upload", auth, upload.single("pdf"), uploadPdf);
 router.get("/my-pdfs", auth, getMyPdfs);
 router.get("/:id", auth, getPdfDetails);

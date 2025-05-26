@@ -12,7 +12,6 @@ exports.uploadPdf = async (req, res) => {
       return res.status(400).json({ error: "PDF file is required" });
     }
 
-    // Call your helper function instead of accessing drive directly
     const driveFile = await uploadToDrive(req.file);
 
     // Create PDF document in your DB
@@ -20,7 +19,7 @@ exports.uploadPdf = async (req, res) => {
       title: req.body.title || req.file.originalname,
       fileId: driveFile.fileId,
       viewLink: driveFile.viewLink,
-      fileUrl: driveFile.viewLink, // <-- add this line to fix validation error
+      fileUrl: driveFile.viewLink,
       uploadedBy: req.user._id,
     });
 
@@ -37,7 +36,7 @@ exports.uploadPdf = async (req, res) => {
 exports.getMyPdfs = async (req, res) => {
   try {
     const pdfs = await Pdf.find({ uploadedBy: req.user._id }).select(
-      "-sharedWith -publicAccessToken -publicLinkExpiresAt"
+      "-sharedWith -publicAccessToken"
     );
     res.json(pdfs);
   } catch (error) {

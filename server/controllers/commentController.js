@@ -48,7 +48,7 @@ const getComments = async (req, res) => {
     if (!pdf) return res.status(404).json({ message: "PDF not found" });
 
     const comments = await Comment.find({ pdf: pdfId })
-      .populate("user", "name email") // populate user name/email
+      .populate("user", "name email")
       .sort({ createdAt: 1 });
 
     res.json({ comments });

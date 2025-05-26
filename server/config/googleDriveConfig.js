@@ -28,7 +28,7 @@ const uploadToDrive = async (file) => {
       requestBody: {
         name: file.originalname,
         mimeType: "application/pdf",
-        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID], // Upload to specific folder
+        parents: [process.env.GOOGLE_DRIVE_FOLDER_ID],
       },
       media: {
         mimeType: "application/pdf",
@@ -36,7 +36,6 @@ const uploadToDrive = async (file) => {
       },
     });
 
-    // Set permissions to view
     await drive.permissions.create({
       fileId: response.data.id,
       requestBody: {
@@ -51,7 +50,7 @@ const uploadToDrive = async (file) => {
       fields: "webViewLink",
     });
 
-    fs.unlinkSync(file.path); // Remove local file
+    fs.unlinkSync(file.path);
 
     return {
       fileId: response.data.id,
