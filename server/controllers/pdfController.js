@@ -4,6 +4,7 @@ const {
   deleteFromDrive,
   renameInDrive,
 } = require("../config/googleDriveConfig");
+const Comment = require("../models/commentModels");
 
 // Upload PDF
 exports.uploadPdf = async (req, res) => {
@@ -88,6 +89,8 @@ exports.deletePdf = async (req, res) => {
     }
 
     await deleteFromDrive(pdf.fileId);
+    await Comment.deleteMany({ pdf: req.params.id });
+
     await pdf.deleteOne();
 
     res.json({ message: "PDF deleted successfully" });
