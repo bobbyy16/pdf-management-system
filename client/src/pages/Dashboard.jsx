@@ -87,13 +87,8 @@ const Dashboard = () => {
   const filteredSharedPdfs = useMemo(() => {
     if (!searchQuery.trim()) return sharedPdfs;
 
-    return sharedPdfs.filter(
-      (pdf) =>
-        pdf.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (pdf.owner?.name &&
-          pdf.owner.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (pdf.owner?.email &&
-          pdf.owner.email.toLowerCase().includes(searchQuery.toLowerCase()))
+    return sharedPdfs.filter((pdf) =>
+      pdf.title.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [sharedPdfs, searchQuery]);
 

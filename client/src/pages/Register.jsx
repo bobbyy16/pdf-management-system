@@ -68,6 +68,7 @@ const Register = () => {
     }
 
     setErrors(newErrors);
+    // If there are no errors, return true
     return Object.keys(newErrors).length === 0;
   };
 
@@ -81,7 +82,7 @@ const Register = () => {
     }
   };
 
-  // Register.js - Update the handleSubmit function
+  // handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
 

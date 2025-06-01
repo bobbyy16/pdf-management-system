@@ -49,7 +49,7 @@ const Login = () => {
     }
   };
 
-  // Login.js - Update the handleSubmit function
+  //  handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
 
