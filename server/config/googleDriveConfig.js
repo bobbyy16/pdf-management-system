@@ -17,6 +17,7 @@ const auth = new google.auth.GoogleAuth({
     client_x509_cert_url: process.env.GOOGLE_CLIENT_CERT_URL,
     universe_domain: process.env.GOOGLE_UNIVERSE_DOMAIN,
   },
+  // Scopes required for Google Drive API
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 
@@ -35,7 +36,7 @@ const uploadToDrive = async (file) => {
         body: fs.createReadStream(file.path),
       },
     });
-
+    // check perimissions for anyone can read, if not it will only be visible to google service account user
     await drive.permissions.create({
       fileId: response.data.id,
       requestBody: {
@@ -44,17 +45,20 @@ const uploadToDrive = async (file) => {
       },
     });
 
-    // Get shareable link
-    const result = await drive.files.get({
+    // Get shareable link, while create function does not return webViewLink, we need to fetch it separately
+    const webLink = await drive.files.get({
       fileId: response.data.id,
       fields: "webViewLink",
     });
 
     fs.unlinkSync(file.path);
+    // console.log(response.data);
+    // console.log(webLink.data);
 
+    // check for response.data.webViewLink
     return {
       fileId: response.data.id,
-      viewLink: result.data.webViewLink,
+      viewLink: webLink.data.webViewLink,
     };
   } catch (error) {
     console.error("Drive upload error:", error);

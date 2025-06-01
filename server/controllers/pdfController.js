@@ -4,7 +4,6 @@ const {
   deleteFromDrive,
   renameInDrive,
 } = require("../config/googleDriveConfig");
-const Comment = require("../models/commentModels");
 
 // Upload PDF
 exports.uploadPdf = async (req, res) => {
@@ -33,12 +32,10 @@ exports.uploadPdf = async (req, res) => {
   }
 };
 
-// Get all PDFs for authenticated user
+// Get current PDFs for authenticated user
 exports.getMyPdfs = async (req, res) => {
   try {
-    const pdfs = await Pdf.find({ uploadedBy: req.user._id }).select(
-      "-sharedWith -publicAccessToken"
-    );
+    const pdfs = await Pdf.find({ uploadedBy: req.user._id });
     res.json(pdfs);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
@@ -89,7 +86,7 @@ exports.deletePdf = async (req, res) => {
     }
 
     await deleteFromDrive(pdf.fileId);
-    await Comment.deleteMany({ pdf: req.params.id });
+    // await Comment.deleteMany({ pdf: req.params.id });
 
     await pdf.deleteOne();
 

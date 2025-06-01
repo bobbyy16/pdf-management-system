@@ -13,6 +13,9 @@ const storage = multer.diskStorage({
   },
 });
 
+// 10 mb limit
+// Prevents very large uploads that can cause slowdowns, timeouts, or security risks.
+// Also, it helps to avoid issues with Google Drive API limits.
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB

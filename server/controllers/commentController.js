@@ -79,7 +79,7 @@ const updateComment = async (req, res) => {
     comment.text = text;
     await comment.save();
 
-    // Populate the user data before sending response
+    // Populate the user data before sending response, look into this, its required or not
     await comment.populate("user", "name email");
 
     res.json({ message: "Comment updated", comment });

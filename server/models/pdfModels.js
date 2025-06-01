@@ -27,4 +27,14 @@ const pdfSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// once pdf gets deleted, delete all comments related to it
+pdfSchema.pre(
+  "deleteOne",
+  { document: true, query: false },
+  async function (next) {
+    await Comment.deleteMany({ pdf: this._id });
+    next();
+  }
+);
+
 module.exports = mongoose.model("Pdf", pdfSchema);

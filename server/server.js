@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // Define home route
 app.get("/", (req, res) => {
@@ -40,7 +40,8 @@ app.use("/api/pdfs", pdfRoutes);
 app.use("/api/pdf-sharing", pdfSharingRoutes);
 app.use("/api/pdf", commentRoutes);
 
-// Error handling middleware
+// Error handling middleware, global error handler
+
 app.use((err, req, res, next) => {
   console.error("Unhandled Error:", err);
 
@@ -48,7 +49,7 @@ app.use((err, req, res, next) => {
     if (err.code === "LIMIT_FILE_SIZE") {
       return res
         .status(400)
-        .json({ message: "File too large. Maximum size is 50MB." });
+        .json({ message: "File too large. Maximum size is 10MB." });
     }
     return res.status(400).json({ message: `Upload error: ${err.message}` });
   }

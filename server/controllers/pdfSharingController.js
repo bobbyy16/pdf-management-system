@@ -115,6 +115,7 @@ exports.getExternalAccess = async (req, res) => {
     }
 
     const userId = req.user._id;
+
     const sharedAccess = pdf.sharedWith.find(
       (share) => share.userId.toString() === userId.toString()
     );
@@ -138,19 +139,24 @@ exports.getExternalAccess = async (req, res) => {
 };
 
 // Get PDFs shared with the current user
+
 exports.getSharedWithMe = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const currentUserId = req.user._id;
 
-    const sharedPdfs = await Pdf.find({
-      "sharedWith.userId": userId,
+    // Find all PDFs where the current user is included in the sharedWith array
+    const pdfsSharedWithUser = await Pdf.find({
+      "sharedWith.userId": currentUserId,
     })
+      // Populate the 'uploadedBy' field with the owner's name and email
       .populate("uploadedBy", "name email")
       .sort({ createdAt: -1 });
 
-    const transformedPdfs = sharedPdfs.map((pdf) => {
-      const shareInfo = pdf.sharedWith.find(
-        (share) => share.userId.toString() === userId.toString()
+    // Map over the PDFs to extract relevant info along with sharing metadata for the current user
+    const pdfsWithSharingDetails = pdfsSharedWithUser.map((pdf) => {
+      // Find sharing details specific to the current user
+      const userShareDetails = pdf.sharedWith.find(
+        (share) => share.userId.toString() === currentUserId.toString()
       );
 
       return {
@@ -160,14 +166,14 @@ exports.getSharedWithMe = async (req, res) => {
         fileUrl: pdf.fileUrl,
         createdAt: pdf.createdAt,
         owner: pdf.uploadedBy,
-        sharedAt: shareInfo.createdAt,
-        accessToken: shareInfo.accessToken,
+        sharedAt: userShareDetails.createdAt,
+        accessToken: userShareDetails.accessToken,
       };
     });
 
     res.json({
-      pdfs: transformedPdfs,
-      count: transformedPdfs.length,
+      pdfs: pdfsWithSharingDetails,
+      count: pdfsWithSharingDetails.length,
       success: true,
     });
   } catch (error) {
@@ -178,6 +184,7 @@ exports.getSharedWithMe = async (req, res) => {
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
+    // Finds all users except the currently logged-in user
     const users = await User.find({ _id: { $ne: req.user._id } })
       .select("name email")
       .sort({ name: 1, email: 1 });
